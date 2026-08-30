@@ -1,157 +1,82 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unlock Content</title>
-    <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
-        body {
-            background-color: var(--tg-theme-bg-color, #0f172a);
-            color: var(--tg-theme-text-color, #f8fafc);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-            text-align: center;
-        }
-        .card {
-            background: var(--tg-theme-secondary-bg-color, #1e293b);
-            border-radius: 16px;
-            padding: 24px;
-            width: 100%;
-            max-width: 360px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
-        h2 {
-            font-size: 20px;
-            margin-bottom: 8px;
-            color: #38bdf8;
-        }
-        p {
-            font-size: 14px;
-            color: #94a3b8;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-        .timer-box {
-            font-size: 32px;
-            font-weight: bold;
-            color: #f59e0b;
-            margin: 15px 0;
-        }
-        .btn {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .btn-ad {
-            background: #2563eb;
-            color: #ffffff;
-        }
-        .btn-ad:hover {
-            background: #1d4ed8;
-        }
-        .btn-verify {
-            background: #10b981;
-            color: #ffffff;
-            display: none;
-        }
-        .btn-verify:hover {
-            background: #059669;
-        }
-        .btn:disabled {
-            background: #475569;
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; padding: 20px; }
+        .box { background: #1e1e1e; padding: 25px; border-radius: 14px; text-align: center; width: 100%; max-width: 360px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
+        h3 { color: #0088cc; margin-bottom: 10px; }
+        p { font-size: 14px; color: #ccc; margin-bottom: 15px; }
+        .timer { font-size: 22px; color: #ffcc00; margin: 15px 0; font-weight: bold; }
+        .btn { background: #0088cc; color: #fff; border: none; padding: 14px; font-size: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; }
+        .btn:disabled { background: #444; color: #888; cursor: not-allowed; }
+        .ad-btn { background: #e94560; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <div class="icon">🎬</div>
-        <h2>Video Content Unlock</h2>
-        <p id="instruction">ভিডিওটি আনলক করতে নিচের বোতামে ক্লিক করে স্পন্সর অ্যাডটি দেখুন।</p>
-        
-        <div id="timer" class="timer-box" style="display: none;">15</div>
+<div class="box">
+    <h3>কন্টেন্ট আনলক করুন</h3>
+    <p>ফাইলটি পেতে ১৫ সেকেন্ড অপেক্ষা করুন।</p>
 
-        <button id="adBtn" class="btn btn-ad" onclick="openAd()">🚀 Watch Ad to Unlock</button>
-        <button id="verifyBtn" class="btn btn-verify" onclick="verifyAndGetFile()">✅ Get Video File</button>
-    </div>
+    <!-- অ্যাড দেখার বাটন (যদি আপনার ডায়রেক্ট অ্যাড লিঙ্ক থাকে) -->
+    <button class="btn ad-btn" onclick="openAdLink()">📢 বিজ্ঞাপন দেখতে এখানে চাপুন</button>
+    
+    <div id="timer" class="timer">⏱️ ১৫ সেকেন্ড বাকি</div>
+    
+    <button id="getLinkBtn" class="btn" disabled onclick="redirectToBot()"> Get Link (আনলক করুন)</button>
+</div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
 
-        // URL Parameter থেকে Smart Ad Link রিসিভ করা
-        const urlParams = new URLSearchParams(window.location.search);
-        const adLink = urlParams.get('ad_link') || "https://google.com";
+    // URL Param থেকে File ID এবং Bot Username গ্রহণ
+    const urlParams = new URLSearchParams(window.location.search);
+    const fileId = urlParams.get('file_id');
+    const botUsername = urlParams.get('bot');
 
-        let countdown = 15;
-        let timerInterval = null;
-        let adOpened = false;
+    let timeLeft = 15;
+    const timerElem = document.getElementById('timer');
+    const btnElem = document.getElementById('getLinkBtn');
 
-        function openAd() {
-            // অ্যাড ওপেন করা
-            tg.openLink(adLink);
-            adOpened = true;
+    // আপনার অ্যাড নেটওয়ার্কের ডাইরেক্ট লিঙ্ক (প্রয়োজন হলে এখানে বসান)
+    const AD_DIRECT_LINK = "https://your-ad-network-direct-link.com"; 
 
-            document.getElementById('instruction').innerText = "১৫ সেকেন্ড অপেক্ষা করুন, টাইমার শেষ হলে ফাইল আনলক হবে।";
-            document.getElementById('adBtn').style.display = 'none';
-            document.getElementById('timer').style.display = 'block';
-
-            // টাইমার চালুকরণ
-            timerInterval = setInterval(() => {
-                countdown--;
-                document.getElementById('timer').innerText = countdown;
-
-                if (countdown <= 0) {
-                    clearInterval(timerInterval);
-                    document.getElementById('timer').style.display = 'none';
-                    document.getElementById('instruction').innerText = "অ্যাড দেখা সম্পন্ন হয়েছে! ফাইল নিতে নিচের বোতামে চাপ দিন।";
-                    document.getElementById('verifyBtn').style.display = 'block';
-                }
-            }, 1000);
+    function openAdLink() {
+        if(AD_DIRECT_LINK !== "https://www.profitableratecpmnetwork.com/tqt92rh5?key=21adb80033cc3b33a606220533d7ee2a") {
+            window.open(AD_DIRECT_LINK, '_blank');
         }
+    }
 
-        function verifyAndGetFile() {
-            if (!adOpened) {
-                alert("দয়া করে প্রথমে বিজ্ঞাপনটি দেখুন!");
-                return;
-            }
+    // ১৫ সেকেন্ডের কাউন্টডাউন টাইমার
+    const countdown = setInterval(() => {
+        timeLeft--;
+        if (timeLeft > 0) {
+            timerElem.innerText = `⏱️ ${timeLeft} সেকেন্ড বাকি`;
+        } else {
+            clearInterval(countdown);
+            timerElem.innerText = "✅ ভিডিও আনলক করার জন্য তৈরি!";
+            timerElem.style.color = "#4ecca3";
+            btnElem.disabled = false;
+        }
+    }, 1000);
 
-            // সিকিউরিটির জন্য Telegram WebApp InitData পাঠানো
-            const dataPayload = {
-                status: "VERIFIED_AD_WATCHED",
-                initData: tg.initData
-            };
-
-            // বটের কাছে ব্যাকএন্ডে ডাটা প্রেরণ
-            tg.sendData(JSON.stringify(dataPayload));
-            
-            // অ্যাপ বন্ধ করা
+    // বটের কাছে ফেরত যাওয়ার ফাংশন
+    function redirectToBot() {
+        if (fileId && botUsername) {
+            const redirectUrl = `https://t.me/${botUsername}?start=unlock_${fileId}`;
+            tg.openTelegramLink(redirectUrl);
             tg.close();
+        } else {
+            alert("ত্রুটি: ফাইলের সঠিক আইডেন্টিফায়ার পাওয়া যায়নি!");
         }
-    </script>
+    }
+</script>
+
 </body>
 </html>
