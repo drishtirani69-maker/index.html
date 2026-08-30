@@ -11,7 +11,7 @@
         .box { background: #1e1e1e; padding: 25px; border-radius: 14px; text-align: center; width: 100%; max-width: 360px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
         h3 { color: #0088cc; margin-bottom: 10px; }
         p { font-size: 14px; color: #ccc; margin-bottom: 15px; }
-        .timer { font-size: 20px; color: #ffcc00; margin: 15px 0; font-weight: bold; }
+        .timer { font-size: 18px; color: #ffcc00; margin: 15px 0; font-weight: bold; }
         .btn { background: #0088cc; color: #fff; border: none; padding: 14px; font-size: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; }
         .btn:disabled { background: #444; color: #888; cursor: not-allowed; }
         .ad-btn { background: #e94560; margin-bottom: 10px; animation: pulse 1.5s infinite; }
@@ -27,69 +27,84 @@
 
 <div class="box">
     <h3>🔒 কন্টেন্ট আনলক করুন</h3>
-    <p id="instruction">ফাইলটি পেতে প্রথমে নিচের বিজ্ঞাপনে ক্লিক করুন।</p>
+    <p id="instruction">বিজ্ঞাপন দেখে অন্তত ১৫ সেকেন্ড ব্রাউজারে থাকুন।</p>
 
-    <!-- ১. অ্যাড দেখার বাধ্যতামূলক বাটন -->
-    <button id="adBtn" class="btn ad-btn" onclick="openAdAndStartTimer()">📢 বিজ্ঞাপন দেখতে এখানে চাপুন</button>
+    <!-- অ্যাড বাটন -->
+    <button id="adBtn" class="btn ad-btn" onclick="openAdAndTrack()">📢 বিজ্ঞাপন দেখুন (১৫ সে.)</button>
     
-    <!-- টাইমার মেসেজ -->
-    <div id="timer" class="timer" style="display:none;">⏱️ ১৫ সেকেন্ড অপেক্ষা করুন...</div>
+    <div id="timer" class="timer" style="display:none;">⏱️ বিজ্ঞাপনে যাওয়ার অপেক্ষা করা হচ্ছে...</div>
     
-    <!-- ২. গেট লিঙ্ক বাটন (প্রথমে বন্ধ থাকবে) -->
-    <button id="getLinkBtn" class="btn" disabled onclick="redirectToBot()"> Get Link (আনলক করুন)</button>
+    <!-- গেট লিঙ্ক বাটন -->
+    <button id="getLinkBtn" class="btn" disabled onclick="redirectToBot()">Get Link (আনলক করুন)</button>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // 🔗 এখানে আপনার আসল SMART LINK/DIRECT LINK টি বসান
+    // 🔗 আপনার আসল SMART LINK / DIRECT LINK টি এখানে বসান
     const AD_DIRECT_LINK = "https://www.profitableratecpmnetwork.com/tqt92rh5?key=21adb80033cc3b33a606220533d7ee2a"; 
 
-    // URL Param থেকে ডাটা নেয়া
     const urlParams = new URLSearchParams(window.location.search);
     const fileId = urlParams.get('file_id');
     const botUsername = urlParams.get('bot');
 
-    let isAdClicked = false;
-    let timeLeft = 15;
+    let leaveTime = 0;
+    let isAdOpened = false;
+    let isUnlocked = false;
 
-    function openAdAndStartTimer() {
+    function openAdAndTrack() {
         if (!AD_DIRECT_LINK || AD_DIRECT_LINK.includes("your-smart-link-here")) {
-            alert("⚠️ এডমিন এখনও স্মার্ট লিঙ্ক সেটআপ করেনি!");
+            alert("⚠️ স্মার্ট লিঙ্ক সেটআপ করা হয়নি!");
             return;
         }
 
-        // বিজ্ঞাপনে নিয়ে যাওয়া
-        tg.openLink(AD_DIRECT_LINK);
-        isAdClicked = true;
-
-        // ইউজার ইন্টারফেস আপডেট
-        document.getElementById('adBtn').style.display = 'none';
-        document.getElementById('instruction').innerText = "বিজ্ঞাপন দেখা হচ্ছে... ১৫ সেকেন্ড অপেক্ষা করুন।";
-        const timerElem = document.getElementById('timer');
-        timerElem.style.display = 'block';
-
-        // টাইমার চালু করা
-        const countdown = setInterval(() => {
-            timeLeft--;
-            if (timeLeft > 0) {
-                timerElem.innerText = `⏱️ ${timeLeft} সেকেন্ড বাকি...`;
-            } else {
-                clearInterval(countdown);
-                timerElem.innerText = "✅ ফাইল আনলক সফল হয়েছে!";
-                timerElem.style.color = "#4ecca3";
-                
-                // টাইমার শেষ এবং অ্যাডে ক্লিক সফল হলে Get Link সক্রিয় করা
-                document.getElementById('getLinkBtn').disabled = false;
-            }
-        }, 1000);
+        // AdBlocker / DNS চেকিং
+        fetch(AD_DIRECT_LINK, { mode: 'no-cors' })
+        .then(() => {
+            tg.openLink(AD_DIRECT_LINK);
+            document.getElementById('instruction').innerText = "বিজ্ঞাপন পেজে প্রবেশ করুন এবং ১৫ সেকেন্ড থাকুন।";
+            document.getElementById('timer').style.display = 'block';
+            document.getElementById('timer').innerText = "⏱️ বিজ্ঞাপনে প্রবেশ যাচাই করা হচ্ছে...";
+        })
+        .catch(() => {
+            alert("⚠️ আপনার ডিভাইসে AdBlocker বা Private DNS চালু আছে! বিজ্ঞাপন দেখতে এবং ফাইল পেতে Private DNS বন্ধ করে পুনরায় চেষ্টা করুন।");
+        });
     }
 
-    // বটের কাছে ফেরত যাওয়া
+    window.addEventListener("blur", function() {
+        if (!isUnlocked) {
+            leaveTime = Date.now();
+            isAdOpened = true;
+        }
+    });
+
+    window.addEventListener("focus", function() {
+        if (isAdOpened && !isUnlocked) {
+            if (leaveTime === 0) return;
+
+            const timeSpent = Math.floor((Date.now() - leaveTime) / 1000);
+            leaveTime = 0;
+
+            if (timeSpent >= 15) {
+                isUnlocked = true;
+                document.getElementById('timer').innerText = "✅ অ্যাড দেখা সফল হয়েছে!";
+                document.getElementById('timer').style.color = "#4ecca3";
+                document.getElementById('adBtn').style.display = 'none';
+                document.getElementById('getLinkBtn').disabled = false;
+            } else {
+                isAdOpened = false;
+                const remaining = 15 - timeSpent;
+                alert(`⚠️ আপনি মাত্র ${timeSpent} সেকেন্ড ছিলেন। পুরো ১৫ সেকেন্ড বিজ্ঞাপনে থাকুন!`);
+                document.getElementById('timer').innerText = `❌ বিজ্ঞাপনে আরও ${remaining} সেকেন্ড থাকতে হবে!`;
+                document.getElementById('timer').style.color = "#ff4d4d";
+            }
+        }
+    });
+
     function redirectToBot() {
-        if (!isAdClicked) {
-            alert("⚠️ আগে বিজ্ঞাপনে ক্লিক করে অপেক্ষা করুন!");
+        if (!isUnlocked) {
+            alert("⚠️ ফাইল পেতে আগে বিজ্ঞাপনে ঢুকুন এবং ১৫ সেকেন্ড থাকুন!");
             return;
         }
 
@@ -98,7 +113,7 @@
             tg.openTelegramLink(redirectUrl);
             tg.close();
         } else {
-            alert("❌ ত্রুটি: ফাইলের লিঙ্ক পাওয়া যায়নি!");
+            alert("❌ ফাইলের আইডি পাওয়া যায়নি!");
         }
     }
 </script>
