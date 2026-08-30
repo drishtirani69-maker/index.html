@@ -9,32 +9,27 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
         body { background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; padding: 20px; }
         .box { background: #1e1e1e; padding: 25px; border-radius: 14px; text-align: center; width: 100%; max-width: 360px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
-        h3 { color: #0088cc; margin-bottom: 10px; }
-        p { font-size: 14px; color: #ccc; margin-bottom: 15px; }
-        .timer { font-size: 18px; color: #ffcc00; margin: 15px 0; font-weight: bold; }
+        h3 { color: #0088cc; margin-bottom: 8px; }
+        p { font-size: 14px; color: #ccc; margin-bottom: 18px; }
+        .timer-box { background: #2a2a2a; padding: 12px; border-radius: 8px; font-size: 16px; color: #ffcc00; margin: 15px 0; font-weight: bold; border: 1px solid #444; }
         .btn { background: #0088cc; color: #fff; border: none; padding: 14px; font-size: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; }
-        .btn:disabled { background: #444; color: #888; cursor: not-allowed; }
-        .ad-btn { background: #e94560; margin-bottom: 10px; animation: pulse 1.5s infinite; }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
-        }
+        .btn:disabled { background: #333; color: #777; cursor: not-allowed; }
+        .ad-btn { background: #e94560; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div class="box">
     <h3>🔒 কন্টেন্ট আনলক করুন</h3>
-    <p id="instruction">বিজ্ঞাপন দেখে অন্তত ১৫ সেকেন্ড ব্রাউজারে থাকুন।</p>
+    <p id="instruction">ফাইলটি আনলক করতে নিচের বোতামে চাপ দিন।</p>
 
-    <!-- অ্যাড বাটন -->
-    <button id="adBtn" class="btn ad-btn" onclick="openAdAndTrack()">📢 বিজ্ঞাপন দেখুন (১৫ সে.)</button>
+    <!-- ১. অ্যাড দেখার বাটন -->
+    <button id="adBtn" class="btn ad-btn" onclick="startUnlockProcess()">📢 বিজ্ঞাপন দেখুন ও লিঙ্ক পান</button>
     
-    <div id="timer" class="timer" style="display:none;">⏱️ বিজ্ঞাপনে যাওয়ার অপেক্ষা করা হচ্ছে...</div>
+    <!-- টাইমার বক্স -->
+    <div id="timerBox" class="timer-box" style="display:none;">⏱️ ১৫ সেকেন্ড অপেক্ষা করুন...</div>
     
-    <!-- গেট লিঙ্ক বাটন -->
+    <!-- ২. গেট লিঙ্ক বাটন -->
     <button id="getLinkBtn" class="btn" disabled onclick="redirectToBot()">Get Link (আনলক করুন)</button>
 </div>
 
@@ -49,64 +44,46 @@
     const fileId = urlParams.get('file_id');
     const botUsername = urlParams.get('bot');
 
-    let leaveTime = 0;
-    let isAdOpened = false;
+    let timeLeft = 15;
+    let timerInterval = null;
     let isUnlocked = false;
 
-    function openAdAndTrack() {
+    function startUnlockProcess() {
         if (!AD_DIRECT_LINK || AD_DIRECT_LINK.includes("your-smart-link-here")) {
             alert("⚠️ স্মার্ট লিঙ্ক সেটআপ করা হয়নি!");
             return;
         }
 
-        // AdBlocker / DNS চেকিং
-        fetch(AD_DIRECT_LINK, { mode: 'no-cors' })
-        .then(() => {
+        // বিজ্ঞাপনের লিঙ্ক ওপেন করা
+        try {
             tg.openLink(AD_DIRECT_LINK);
-            document.getElementById('instruction').innerText = "বিজ্ঞাপন পেজে প্রবেশ করুন এবং ১৫ সেকেন্ড থাকুন।";
-            document.getElementById('timer').style.display = 'block';
-            document.getElementById('timer').innerText = "⏱️ বিজ্ঞাপনে প্রবেশ যাচাই করা হচ্ছে...";
-        })
-        .catch(() => {
-            alert("⚠️ আপনার ডিভাইসে AdBlocker বা Private DNS চালু আছে! বিজ্ঞাপন দেখতে এবং ফাইল পেতে Private DNS বন্ধ করে পুনরায় চেষ্টা করুন।");
-        });
+        } catch(e) {
+            window.open(AD_DIRECT_LINK, '_blank');
+        }
+
+        // UI আপডেট
+        document.getElementById('adBtn').style.display = 'none';
+        document.getElementById('instruction').innerText = "অনুগ্রহ করে টাইমারটি শেষ হওয়া পর্যন্ত অপেক্ষা করুন...";
+        document.getElementById('timerBox').style.display = 'block';
+
+        // কাউন্টডাউন টাইমার চালু
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            if (timeLeft > 0) {
+                document.getElementById('timerBox').innerText = `⏱️ ${timeLeft} সেকেন্ড অপেক্ষা করুন...`;
+            } else {
+                clearInterval(timerInterval);
+                isUnlocked = true;
+                document.getElementById('timerBox').innerText = "✅ ফাইল আনলক প্রস্তুত!";
+                document.getElementById('timerBox').style.color = "#4ecca3";
+                document.getElementById('timerBox').style.borderColor = "#4ecca3";
+                document.getElementById('getLinkBtn').disabled = false;
+            }
+        }, 1000);
     }
 
-    window.addEventListener("blur", function() {
-        if (!isUnlocked) {
-            leaveTime = Date.now();
-            isAdOpened = true;
-        }
-    });
-
-    window.addEventListener("focus", function() {
-        if (isAdOpened && !isUnlocked) {
-            if (leaveTime === 0) return;
-
-            const timeSpent = Math.floor((Date.now() - leaveTime) / 1000);
-            leaveTime = 0;
-
-            if (timeSpent >= 15) {
-                isUnlocked = true;
-                document.getElementById('timer').innerText = "✅ অ্যাড দেখা সফল হয়েছে!";
-                document.getElementById('timer').style.color = "#4ecca3";
-                document.getElementById('adBtn').style.display = 'none';
-                document.getElementById('getLinkBtn').disabled = false;
-            } else {
-                isAdOpened = false;
-                const remaining = 15 - timeSpent;
-                alert(`⚠️ আপনি মাত্র ${timeSpent} সেকেন্ড ছিলেন। পুরো ১৫ সেকেন্ড বিজ্ঞাপনে থাকুন!`);
-                document.getElementById('timer').innerText = `❌ বিজ্ঞাপনে আরও ${remaining} সেকেন্ড থাকতে হবে!`;
-                document.getElementById('timer').style.color = "#ff4d4d";
-            }
-        }
-    });
-
     function redirectToBot() {
-        if (!isUnlocked) {
-            alert("⚠️ ফাইল পেতে আগে বিজ্ঞাপনে ঢুকুন এবং ১৫ সেকেন্ড থাকুন!");
-            return;
-        }
+        if (!isUnlocked) return;
 
         if (fileId && botUsername) {
             const redirectUrl = `https://t.me/${botUsername}?start=unlock_${fileId}`;
