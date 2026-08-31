@@ -11,7 +11,7 @@
         .box { background: #1e1e1e; padding: 25px; border-radius: 14px; text-align: center; width: 100%; max-width: 360px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
         h3 { color: #0088cc; margin-bottom: 8px; }
         p { font-size: 14px; color: #ccc; margin-bottom: 18px; }
-        .timer-box { background: #2a2a2a; padding: 12px; border-radius: 8px; font-size: 16px; color: #ffcc00; margin: 15px 0; font-weight: bold; border: 1px solid #444; }
+        .timer-box { background: #2a2a2a; padding: 12px; border-radius: 8px; font-size: 15px; color: #ffcc00; margin: 15px 0; font-weight: bold; border: 1px solid #444; }
         .btn { background: #0088cc; color: #fff; border: none; padding: 14px; font-size: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; }
         .btn:disabled { background: #333; color: #777; cursor: not-allowed; }
         .ad-btn { background: #e94560; margin-bottom: 10px; }
@@ -21,13 +21,13 @@
 
 <div class="box">
     <h3>🔒 কন্টেন্ট আনলক করুন</h3>
-    <p id="instruction">ফাইলটি আনলক করতে নিচের বোতামে চাপ দিন।</p>
+    <p id="instruction">বিজ্ঞাপনে ক্লিক করে অন্তত ১৫ সেকেন্ড অপেক্ষা করুন।</p>
 
     <!-- ১. অ্যাড দেখার বাটন -->
-    <button id="adBtn" class="btn ad-btn" onclick="startUnlockProcess()">📢 বিজ্ঞাপন দেখুন ও লিঙ্ক পান</button>
+    <button id="adBtn" class="btn ad-btn" onclick="openAd()">📢 বিজ্ঞাপন দেখুন ও আনলক করুন</button>
     
     <!-- টাইমার বক্স -->
-    <div id="timerBox" class="timer-box" style="display:none;">⏱️ ১৫ সেকেন্ড অপেক্ষা করুন...</div>
+    <div id="timerBox" class="timer-box" style="display:none;">⏱️ বিজ্ঞাপনে যাওয়ার অপেক্ষা করা হচ্ছে...</div>
     
     <!-- ২. গেট লিঙ্ক বাটন -->
     <button id="getLinkBtn" class="btn" disabled onclick="redirectToBot()">Get Link (আনলক করুন)</button>
@@ -37,53 +37,72 @@
     const tg = window.Telegram.WebApp;
     tg.expand();
 
-    // 🔗 আপনার আসল SMART LINK / DIRECT LINK টি এখানে বসান
+    // 🔗 আপনার আসল SMART LINK / DIRECT LINK
     const AD_DIRECT_LINK = "https://www.profitableratecpmnetwork.com/tqt92rh5?key=21adb80033cc3b33a606220533d7ee2a"; 
 
     const urlParams = new URLSearchParams(window.location.search);
     const fileId = urlParams.get('file_id');
     const botUsername = urlParams.get('bot');
 
-    let timeLeft = 15;
-    let timerInterval = null;
+    let leaveTime = 0;
+    let totalTimeSpent = 0;
+    const REQUIRED_TIME = 15; // নিখুঁত ১৫ সেকেন্ড
+    let isClicked = false;
     let isUnlocked = false;
 
-    function startUnlockProcess() {
+    function openAd() {
         if (!AD_DIRECT_LINK || AD_DIRECT_LINK.includes("your-smart-link-here")) {
             alert("⚠️ স্মার্ট লিঙ্ক সেটআপ করা হয়নি!");
             return;
         }
 
-        // বিজ্ঞাপনের লিঙ্ক ওপেন করা
+        isClicked = true;
+        document.getElementById('instruction').innerText = "বিজ্ঞাপন অপেন হয়েছে। ১৫ সেকেন্ড পার করে ব্যাকে আসুন।";
+        document.getElementById('timerBox').style.display = 'block';
+        document.getElementById('timerBox').innerText = "⏱️ বিজ্ঞাপনে ঢুকলে সময় গণনা শুরু হবে...";
+
+        // External/Default Browser সাপোর্ট সহ ওপেন
         try {
-            tg.openLink(AD_DIRECT_LINK);
+            tg.openLink(AD_DIRECT_LINK, { try_instant_view: false });
         } catch(e) {
             window.open(AD_DIRECT_LINK, '_blank');
         }
-
-        // UI আপডেট
-        document.getElementById('adBtn').style.display = 'none';
-        document.getElementById('instruction').innerText = "অনুগ্রহ করে টাইমারটি শেষ হওয়া পর্যন্ত অপেক্ষা করুন...";
-        document.getElementById('timerBox').style.display = 'block';
-
-        // কাউন্টডাউন টাইমার চালু
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            if (timeLeft > 0) {
-                document.getElementById('timerBox').innerText = `⏱️ ${timeLeft} সেকেন্ড অপেক্ষা করুন...`;
-            } else {
-                clearInterval(timerInterval);
-                isUnlocked = true;
-                document.getElementById('timerBox').innerText = "✅ ফাইল আনলক প্রস্তুত!";
-                document.getElementById('timerBox').style.color = "#4ecca3";
-                document.getElementById('timerBox').style.borderColor = "#4ecca3";
-                document.getElementById('getLinkBtn').disabled = false;
-            }
-        }, 1000);
     }
 
+    // ইউজার যখন অ্যাপ ছেড়ে বাইরের ব্রাউজারে যাবে
+    window.onblur = function() {
+        if (isClicked && !isUnlocked) {
+            leaveTime = Date.now();
+        }
+    };
+
+    // ইউজার যখন বাইরের ব্রাউজার থেকে অ্যাপে ফিরে আসবে
+    window.onfocus = function() {
+        if (leaveTime > 0 && !isUnlocked) {
+            const timePassed = Math.floor((Date.now() - leaveTime) / 1000);
+            totalTimeSpent += timePassed;
+            leaveTime = 0;
+
+            if (totalTimeSpent >= REQUIRED_TIME) {
+                isUnlocked = true;
+                document.getElementById('timerBox').innerText = "✅ বিজ্ঞাপন দেখা সফল হয়েছে!";
+                document.getElementById('timerBox').style.color = "#4ecca3";
+                document.getElementById('timerBox').style.borderColor = "#4ecca3";
+                document.getElementById('adBtn').style.display = 'none';
+                document.getElementById('getLinkBtn').disabled = false;
+            } else {
+                const remaining = REQUIRED_TIME - totalTimeSpent;
+                document.getElementById('timerBox').innerText = `⚠️ মাত্র ${totalTimeSpent} সে. ছিলেন! আরও ${remaining} সে. বিজ্ঞাপনে থাকুন।`;
+                document.getElementById('timerBox').style.color = "#ffcc00";
+            }
+        }
+    };
+
     function redirectToBot() {
-        if (!isUnlocked) return;
+        if (!isUnlocked) {
+            alert("⚠️ ফাইল পেতে আগে বিজ্ঞাপনে ঢুকে ১৫ সেকেন্ড থাকুন!");
+            return;
+        }
 
         if (fileId && botUsername) {
             const redirectUrl = `https://t.me/${botUsername}?start=unlock_${fileId}`;
