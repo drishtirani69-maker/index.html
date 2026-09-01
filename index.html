@@ -2,103 +2,155 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unlock Content</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Anti-Cheat Content Unlocker</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; padding: 20px; }
-        .box { background: #1e1e1e; padding: 25px; border-radius: 14px; text-align: center; width: 100%; max-width: 360px; box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
-        h3 { color: #0088cc; margin-bottom: 8px; }
-        p { font-size: 14px; color: #ccc; margin-bottom: 18px; }
-        .timer-box { background: #2a2a2a; padding: 12px; border-radius: 8px; font-size: 15px; color: #ffcc00; margin: 15px 0; font-weight: bold; border: 1px solid #444; }
-        .btn { background: #0088cc; color: #fff; border: none; padding: 14px; font-size: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; }
-        .btn:disabled { background: #333; color: #777; cursor: not-allowed; }
-        .ad-btn { background: #e94560; margin-bottom: 10px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background: #0b1120; color: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px; }
+        .box { background: #1e293b; padding: 24px; border-radius: 18px; text-align: center; width: 100%; max-width: 380px; box-shadow: 0 15px 30px rgba(0,0,0,0.6); border: 1px solid #334155; }
+        h3 { color: #38bdf8; margin-bottom: 8px; font-size: 18px; }
+        p { font-size: 13px; color: #94a3b8; margin-bottom: 16px; line-height: 1.5; }
+        
+        .alert-box { background: #0f172a; padding: 14px; border-radius: 12px; font-size: 13px; margin: 14px 0; font-weight: 600; border: 1px solid #334155; text-align: left; }
+        .alert-box.error { border-color: #ef4444; color: #fca5a5; background: #450a0a; }
+        .alert-box.success { border-color: #10b981; color: #6ee7b7; background: #064e3b; }
+        .alert-box.idle { border-color: #f59e0b; color: #fcd34d; background: #451a03; }
+
+        .btn { background: #0284c7; color: #fff; border: none; padding: 14px; font-size: 15px; border-radius: 10px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.2s; margin-top: 8px; }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; transform: none; }
+        
+        .ad-btn { background: #e11d48; }
+        .ad-btn:hover { background: #be123c; }
+        .get-btn { background: #10b981; }
+
+        .badge { display: inline-block; padding: 3px 10px; font-size: 11px; background: #334155; border-radius: 99px; color: #38bdf8; margin-bottom: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="box">
-    <h3>🔒 কন্টেন্ট আনলক করুন</h3>
-    <p id="instruction">বিজ্ঞাপনে ক্লিক করে অন্তত ১৫ সেকেন্ড অপেক্ষা করুন।</p>
+    <span class="badge">🔒 রিয়েল অ্যাড ভেরিফিকেশন</span>
+    <h3>ফাইলটি আনলক করুন</h3>
+    <p id="instruction">বিজ্ঞাপনে ক্লিক করে ব্রাউজারে <strong>কমপক্ষে ১৫ সেকেন্ড</strong> থাকুন। এই মিনি অ্যাপে বসে থাকলে টাইম কাউন্ট হবে না!</p>
 
-    <!-- ১. অ্যাড দেখার বাটন -->
-    <button id="adBtn" class="btn ad-btn" onclick="openAd()">📢 বিজ্ঞাপন দেখুন ও আনলক করুন</button>
-    
-    <!-- টাইমার বক্স -->
-    <div id="timerBox" class="timer-box" style="display:none;">⏱️ ১৫ সেকেন্ড অপেক্ষা করুন...</div>
-    
-    <!-- ২. গেট লিঙ্ক বাটন -->
-    <button id="getLinkBtn" class="btn" disabled onclick="redirectToBot()">Get Link (আনলক করুন)</button>
+    <!-- ১. বিজ্ঞাপনে যাওয়ার বাটন -->
+    <button id="adBtn" class="btn ad-btn" onclick="goToAd()">📢 বিজ্ঞাপনে যান (১৫ সেকেন্ড)</button>
+
+    <!-- ভেরিফিকেশন স্ট্যাটাস বক্স -->
+    <div id="statusBox" class="alert-box idle" style="display:none;"></div>
+
+    <!-- ২. আনলক বাটন -->
+    <button id="getLinkBtn" class="btn" disabled onclick="redirectToBot()">Get Link (আনলক)</button>
 </div>
 
 <script>
     const tg = window.Telegram.WebApp;
-    tg.expand();
+    try { tg.expand(); tg.ready(); } catch(e) {}
 
-    // 🔗 আপনার আসল SMART LINK / DIRECT LINK টি এখানে বসান
-    const AD_DIRECT_LINK = "https://www.profitableratecpmnetwork.com/tqt92rh5?key=21adb80033cc3b33a606220533d7ee2a"; 
+    // 🔗 আপনার আসল স্মার্ট লিঙ্ক বা ডিরেক্ট লিঙ্ক এখানে বসান
+    const AD_DIRECT_LINK = "https://www.profitableratecpmnetwork.com/tqt92rh5?key=21adb80033cc3b33a606220533d7ee2a";
+
+    const REQUIRED_STAY_SECONDS = 15; // বিজ্ঞাপনে থাকার প্রয়োজনীয় সময়
+    let timeSpentInAd = 0;             // ইউজার আসলে বিজ্ঞাপনের পেজে কত সেকেন্ড ছিল
+    let timeWhenLeftMiniApp = null;    // মিনি অ্যাপ ছেড়ে বের হওয়ার সময়
+    let isAdClicked = false;
+    let isVerified = false;
 
     const urlParams = new URLSearchParams(window.location.search);
     const fileId = urlParams.get('file_id');
     const botUsername = urlParams.get('bot');
 
-    let timeLeft = 15; // ১৫ সেকেন্ড
-    let timerInterval = null;
-    let isClicked = false;
-    let isUnlocked = false;
+    const adBtn = document.getElementById('adBtn');
+    const getLinkBtn = document.getElementById('getLinkBtn');
+    const statusBox = document.getElementById('statusBox');
+    const instruction = document.getElementById('instruction');
 
-    function openAd() {
+    // ১. ইউজার বাটনে চাপ দিলে বিজ্ঞাপনে পাঠানো
+    function goToAd() {
         if (!AD_DIRECT_LINK || AD_DIRECT_LINK.includes("your-smart-link-here")) {
-            alert("⚠️ স্মার্ট লিঙ্ক সেটআপ করা হয়নি!");
+            alert("⚠️ এডমিন এখনও স্মার্ট লিংক বসায়নি!");
             return;
         }
 
-        isClicked = true;
-        document.getElementById('adBtn').style.display = 'none';
-        document.getElementById('instruction').innerText = "বিজ্ঞাপন অপেন হয়েছে। টাইমার শেষ হওয়া পর্যন্ত অপেক্ষা করুন।";
-        document.getElementById('timerBox').style.display = 'block';
+        isAdClicked = true;
+        // ইউজার বের হওয়ার টাইমস্ট্যাম্প রেকর্ড করা হলো
+        timeWhenLeftMiniApp = Date.now();
 
-        // ১. অ্যাড লিঙ্ক ডিফল্ট/এক্সটার্নাল ব্রাউজারে অপেন
+        statusBox.style.display = "block";
+        statusBox.className = "alert-box idle";
+        statusBox.innerHTML = `⏳ <strong>বিজ্ঞাপন ব্রাউজারে লোড হচ্ছে...</strong><br>ব্রাউজারে মিনিমাম ১৫ সেকেন্ড থাকুন। এই পেজে ফিরে আসলে টাইমার থেমে যাবে!`;
+
+        // ব্রাউজারে বিজ্ঞাপন ওপেন
         try {
             tg.openLink(AD_DIRECT_LINK, { try_instant_view: false });
         } catch(e) {
             window.open(AD_DIRECT_LINK, '_blank');
         }
-
-        // ২. ১৫ সেকেন্ডের নির্ভরযোগ্য টাইমার স্টার্ট
-        startCountdown();
     }
 
-    function startCountdown() {
-        if (timerInterval) clearInterval(timerInterval);
+    // ২. Anti-Cheat ইঞ্জিন: ইউজার মিনি অ্যাপে ফেরত আসলে সময় যাচাই
+    document.addEventListener("visibilitychange", checkRealTimeSpent);
+    window.addEventListener("focus", checkRealTimeSpent);
 
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            if (timeLeft > 0) {
-                document.getElementById('timerBox').innerText = `⏱️ ${timeLeft} সেকেন্ড অপেক্ষা করুন...`;
-            } else {
-                clearInterval(timerInterval);
-                isUnlocked = true;
-                document.getElementById('timerBox').innerText = "✅ বিজ্ঞাপন দেখা সফল হয়েছে!";
-                document.getElementById('timerBox').style.color = "#4ecca3";
-                document.getElementById('timerBox').style.borderColor = "#4ecca3";
-                document.getElementById('getLinkBtn').disabled = false;
+    function checkRealTimeSpent() {
+        if (!isAdClicked || isVerified) return;
+
+        // ইউজার যখন মিনি অ্যাপের স্ক্রিনে আবার ফেরত আসলো:
+        if (document.visibilityState === "visible") {
+            if (!timeWhenLeftMiniApp) return;
+
+            const returnTime = Date.now();
+            // ইউজার মিনি অ্যাপের বাইরে (বিজ্ঞাপনের ব্রাউজারে) কত সেকেন্ড ছিল
+            const secondsSpentOutside = Math.floor((returnTime - timeWhenLeftMiniApp) / 1000);
+            
+            if (secondsSpentOutside > 0) {
+                timeSpentInAd += secondsSpentOutside;
             }
-        }, 1000);
+            timeWhenLeftMiniApp = null; // মিনি অ্যাপে আসলে টাইমার অফ!
+
+            // ১৫ সেকেন্ড পূর্ণ হয়েছে কি না যাচাই
+            if (timeSpentInAd >= REQUIRED_STAY_SECONDS) {
+                // ✅ ১০০% আসল অ্যাড ভিউ কনফার্ম
+                isVerified = true;
+                statusBox.className = "alert-box success";
+                statusBox.innerHTML = `✅ <strong>বিজ্ঞাপন দেখা সফল হয়েছে!</strong><br>আপনি বিজ্ঞাপনে পূর্ণ ১৫ সেকেন্ড সময় কাটিয়েছেন। এখন নিচে আনলক করুন।`;
+                
+                adBtn.style.display = "none";
+                getLinkBtn.disabled = false;
+                getLinkBtn.className = "btn get-btn";
+                instruction.innerText = "অভিনন্দন! আপনার ফাইলটি আনলক হয়েছে।";
+            } else {
+                // ❌ চিটিং ধরা পড়েছে (ইউজার বিজ্ঞাপনের পেজে পর্যাপ্ত সময় থাকেনি)
+                const neededMore = REQUIRED_STAY_SECONDS - timeSpentInAd;
+                statusBox.className = "alert-box error";
+                statusBox.innerHTML = `⚠️ <strong>বিজ্ঞাপন দেখা সম্পন্ন হয়নি!</strong><br>আপনি বিজ্ঞাপনে মাত্র ${timeSpentInAd} সেকেন্ড ছিলেন। আপনাকে আরও <strong>${neededMore} সেকেন্ড</strong> বিজ্ঞাপনের পেজে থাকতে হবে।`;
+                
+                adBtn.innerText = `🔄 বিজ্ঞাপনে বাকি ${neededMore} সেকেন্ড থাকুন`;
+            }
+        } 
+        // ইউজার আবার বিজ্ঞাপনের ট্যাবে গেল:
+        else if (document.visibilityState === "hidden") {
+            timeWhenLeftMiniApp = Date.now();
+        }
     }
 
+    // ৩. আনলক হয়ে গেলে বটে ফাইল পাঠানো
     function redirectToBot() {
-        if (!isClicked || !isUnlocked) {
-            alert("⚠️ আগে বিজ্ঞাপনে ক্লিক করে ১৫ সেকেন্ড সময় শেষ করুন!");
+        if (!isVerified) {
+            alert("⚠️ আগে বিজ্ঞাপনে পূর্ণ ১৫ সেকেন্ড সময় কাটান!");
             return;
         }
 
         if (fileId && botUsername) {
             const redirectUrl = `https://t.me/${botUsername}?start=unlock_${fileId}`;
-            tg.openTelegramLink(redirectUrl);
-            tg.close();
+            try {
+                tg.openTelegramLink(redirectUrl);
+                tg.close();
+            } catch(e) {
+                window.location.href = redirectUrl;
+            }
         } else {
             alert("❌ ফাইলের আইডি পাওয়া যায়নি!");
         }
