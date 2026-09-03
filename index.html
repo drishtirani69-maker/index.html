@@ -92,9 +92,13 @@
     const botUsername = urlParams.get('bot');
     const dynamicAdUrl = urlParams.get('ad_url');
 
-    // 🔗 🔄 মাল্টি-অ্যাড লিঙ্ক রোটেটর পুল
-    const RAW_AD_LINKS = (dynamicAdUrl || "https://your-smart-link-here.com").split(',').map(s => s.trim()).filter(Boolean);
-    const AD_LINKS_POOL = RAW_AD_LINKS.length > 0 ? RAW_AD_LINKS : ["https://your-smart-link-here.com"];
+// 🔗 🔄 মাল্টি-অ্যাড লিঙ্ক রোটেটর পুল (এখানে আপনার ৩টি লিঙ্ক বসানো হয়েছে)
+    const RAW_AD_LINKS = (dynamicAdUrl || "").split(',').map(s => s.trim()).filter(Boolean);
+    const AD_LINKS_POOL = RAW_AD_LINKS.length > 0 ? RAW_AD_LINKS : [
+        "https://www.profitableratecpmnetwork.com/dfazk6ntyq?key=7f542786c09ff9c224ca16a4f8151fd0খানে-আপনার-১ম-Adsterra-লিংক-বসাবেন",
+        "https://omg10.com/4/11717817",
+        "https://boring-active.com/zaWH9A"
+    ];
 
     const REQUIRED_SECONDS = 12; // ১২ সেকেন্ড
     const TOTAL_STEPS = 2;       // মোট ২টি ধাপ
@@ -119,7 +123,7 @@
     const getLinkBtn = document.getElementById('getLinkBtn');
     const statusBox = document.getElementById('statusBox');
     const instruction = document.getElementById('instruction');
-
+    
     // 🔊 মিষ্টি অডিও বেল সিন্থেসাইজার
     function playChime() {
         try {
