@@ -10,13 +10,17 @@
         body { background: #0b1120; color: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px; }
         .box { background: #1e293b; padding: 24px; border-radius: 18px; text-align: center; width: 100%; max-width: 380px; box-shadow: 0 15px 30px rgba(0,0,0,0.6); border: 1px solid #334155; }
         h3 { color: #38bdf8; margin-bottom: 6px; font-size: 18px; font-weight: 700; }
-        p.subtitle { font-size: 12.5px; color: #94a3b8; margin-bottom: 16px; line-height: 1.5; }
+        p.subtitle { font-size: 12.5px; color: #94a3b8; margin-bottom: 14px; line-height: 1.5; }
         
         /* 2-Steps Badges */
         .steps-container { display: flex; justify-content: center; gap: 8px; margin-bottom: 14px; }
         .step-pill { flex: 1; padding: 8px 4px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; font-size: 12px; font-weight: 700; color: #64748b; transition: all 0.3s; }
         .step-pill.active { border-color: #38bdf8; background: #0369a1; color: #fff; box-shadow: 0 0 10px rgba(56, 189, 248, 0.3); }
         .step-pill.done { border-color: #10b981; background: #065f46; color: #a7f3d0; }
+
+        /* Sound Alert Hint Box */
+        .sound-hint { background: #0f172a; border: 1px dashed #38bdf8; border-radius: 10px; padding: 10px; margin-bottom: 14px; font-size: 11.5px; color: #bae6fd; text-align: left; line-height: 1.5; display: flex; align-items: flex-start; gap: 8px; }
+        .sound-hint .icon { font-size: 18px; line-height: 1; }
 
         /* Dynamic Alert / Status Box */
         .alert-box { background: #0f172a; padding: 12px 14px; border-radius: 12px; font-size: 12.5px; margin: 14px 0; font-weight: 600; border: 1px solid #334155; text-align: left; line-height: 1.5; }
@@ -34,19 +38,36 @@
         .get-btn:hover { background: #059669; }
 
         .badge { display: inline-block; padding: 3px 10px; font-size: 11px; background: #0f172a; border: 1px solid #334155; border-radius: 99px; color: #38bdf8; margin-bottom: 10px; font-weight: 600; }
+
+        /* ⚠️ 18+ Disclaimer & Safety Warning Banner */
+        .warning-banner { background: rgba(69, 26, 3, 0.7); border: 1px solid #b45309; border-radius: 10px; padding: 9px 12px; margin-bottom: 12px; text-align: left; }
+        .warning-title { color: #f59e0b; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; gap: 5px; margin-bottom: 3px; }
+        .warning-text { color: #fde68a; font-size: 10.5px; line-height: 1.4; }
     </style>
 </head>
 <body>
 
 <div class="box">
-    <span class="badge">🛡️ ২-ধাপ ভেরিফিকেশন (১২ সেকেন্ড)</span>
+    <span class="badge">🛡️ মাল্টি-অ্যাড রোটেটর ও অডিও এলার্ট</span>
     <h3>ফাইলটি আনলক করুন</h3>
-    <p class="subtitle" id="instruction">কন্টেন্ট পেতে মোট <strong>২টি বিজ্ঞাপন</strong> ভিজিট করুন। বিজ্ঞাপন লোড ও নিশ্চিত করার জন্য প্রতি ধাপে <strong>১২ সেকেন্ড</strong> ব্রাউজারে থাকুন।</p>
+    <p class="subtitle" id="instruction">মোট <strong>২টি বিজ্ঞাপন</strong> ভিজিট করুন। বিজ্ঞাপন লোড ও নিশ্চিত করার জন্য প্রতি ধাপে <strong>১২ সেকেন্ড</strong> ব্রাউজারে থাকুন।</p>
+
+    <!-- ⚠️ ১৮+ কনটেন্ট সতর্কতা ও ডিসক্লেইমার -->
+    <div class="warning-banner">
+        <div class="warning-title">⚠️ ১৮+ সতর্কতা ও ইউজার গাইডলাইন</div>
+        <div class="warning-text">স্পনসর বিজ্ঞাপনে প্রাপ্তবয়স্কদের (১৮+) কন্টেন্ট থাকতে পারে। বিজ্ঞাপনে ১২ সেকেন্ড পূরণ হওয়ামাত্র ফোনে <strong>'ডিঙ-ডং' বেল</strong> বাজবে। নিজ দায়িত্বে ব্রাউজ করুন।</div>
+    </div>
 
     <!-- ২-ধাপ প্রোগ্রেস পিল -->
     <div class="steps-container">
         <div id="stepPill1" class="step-pill active">ধাপ ১/২ (১২ সে.)</div>
         <div id="stepPill2" class="step-pill">ধাপ ২/২ (১২ সে.)</div>
+    </div>
+
+    <!-- অডিও এলার্ট নোটিশ -->
+    <div class="sound-hint">
+        <span class="icon">🔔</span>
+        <div><strong>কীভাবে বুঝবেন ১২ সেকেন্ড শেষ?</strong><br>বিজ্ঞাপনে যাওয়ার ঠিক ১২ সেকেন্ড পূর্ণ হলে আপনার ফোন <strong>কেঁপে উঠবে (Vibrate)</strong> এবং <strong>'ডিঙ-ডং 🔔' শব্দ</strong> করবে! শব্দ শোনামাত্রই মোবাইলের ব্যাক বাটন চাপবেন।</div>
     </div>
 
     <!-- বিজ্ঞাপনে যাওয়ার বাটন -->
@@ -71,21 +92,82 @@
     const botUsername = urlParams.get('bot');
     const dynamicAdUrl = urlParams.get('ad_url');
 
-    // 🔗 ডাইনামিক বা ফলব্যাক SMART LINK
-    const AD_DIRECT_LINK = dynamicAdUrl || "https://www.profitableratecpmnetwork.com/tqt92rh5?key=21adb80033cc3b33a606220533d7ee2a";
+    // 🔗 🔄 মাল্টি-অ্যাড লিঙ্ক রোটেটর পুল
+    const RAW_AD_LINKS = (dynamicAdUrl || "https://your-smart-link-here.com").split(',').map(s => s.trim()).filter(Boolean);
+    const AD_LINKS_POOL = RAW_AD_LINKS.length > 0 ? RAW_AD_LINKS : ["https://your-smart-link-here.com"];
 
-    const REQUIRED_SECONDS = 12; // ⏱️ প্রতি ধাপে ১২ সেকেন্ড (বিজ্ঞাপন লোড ও দেখার পূর্ণ সময়)
+    const REQUIRED_SECONDS = 12; // ১২ সেকেন্ড
     const TOTAL_STEPS = 2;       // মোট ২টি ধাপ
     
     let currentStep = 1;
     let timeWhenLeft = null;
     let isAdClicked = false;
     let isAllDone = false;
+    let accumulatedSeconds = 0;
+    let audioCtx = null;
+    let backgroundTimer = null;
+
+    let adRotationCounter = parseInt(localStorage.getItem('ad_rot_counter') || '0', 10);
+
+    function getNextAdLink(step) {
+        if (AD_LINKS_POOL.length === 1) return AD_LINKS_POOL[0];
+        const selectedIndex = (adRotationCounter + (step - 1)) % AD_LINKS_POOL.length;
+        return AD_LINKS_POOL[selectedIndex];
+    }
 
     const adBtn = document.getElementById('adBtn');
     const getLinkBtn = document.getElementById('getLinkBtn');
     const statusBox = document.getElementById('statusBox');
     const instruction = document.getElementById('instruction');
+
+    // 🔊 মিষ্টি অডিও বেল সিন্থেসাইজার
+    function playChime() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const now = audioCtx.currentTime;
+            
+            const osc1 = audioCtx.createOscillator();
+            const gain1 = audioCtx.createGain();
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(784, now);
+            gain1.gain.setValueAtTime(0.3, now);
+            gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+            osc1.connect(gain1);
+            gain1.connect(audioCtx.destination);
+            osc1.start(now);
+            osc1.stop(now + 0.5);
+
+            const osc2 = audioCtx.createOscillator();
+            const gain2 = audioCtx.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(1046.5, now + 0.2);
+            gain2.gain.setValueAtTime(0.35, now + 0.2);
+            gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+            osc2.connect(gain2);
+            gain2.connect(audioCtx.destination);
+            osc2.start(now + 0.2);
+            osc2.stop(now + 0.9);
+        } catch(e) {}
+    }
+
+    function triggerAlert() {
+        playChime();
+        try {
+            if (navigator.vibrate) {
+                navigator.vibrate([300, 100, 300, 100, 400]);
+            }
+        } catch(e) {}
+        try {
+            if (tg && tg.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('success');
+            }
+        } catch(e) {}
+        document.title = "🔔 (সময় শেষ!) ফিরে আসুন ✅";
+    }
 
     function updatePills() {
         for (let i = 1; i <= TOTAL_STEPS; i++) {
@@ -103,51 +185,68 @@
         }
     }
 
-    // ১. বিজ্ঞাপনে যাওয়া (স্মার্ট লিংক ওপেন)
     function goToAd() {
-        if (!AD_DIRECT_LINK || AD_DIRECT_LINK.includes("your-smart-link-here")) {
+        const targetAdLink = getNextAdLink(currentStep);
+        if (!targetAdLink || targetAdLink.includes("your-smart-link-here")) {
             alert("⚠️ স্মার্ট লিঙ্ক সেটআপ করা হয়নি!");
             return;
         }
 
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext && !audioCtx) audioCtx = new AudioContext();
+            if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        } catch(e) {}
+
+        const remainingNeeded = REQUIRED_SECONDS - accumulatedSeconds;
+
         isAdClicked = true;
-        // ইউজার ব্রাউজারে যাওয়ার সঠিক সময় রেকর্ড
         timeWhenLeft = Date.now();
 
         statusBox.style.display = "block";
         statusBox.className = "alert-box idle";
-        statusBox.innerHTML = "⏳ <strong>বিজ্ঞাপন ব্রাউজারে ওপেন হয়েছে...</strong><br>বিজ্ঞাপন লোড হওয়া ও দেখার জন্য অন্তত " + REQUIRED_SECONDS + " সেকেন্ড থাকুন। এই পেজে বসে থাকলে টাইম কাউন্ট হবে না!";
+        statusBox.innerHTML = "⏳ <strong>বিজ্ঞাপন ব্রাউজারে লোড হচ্ছে...</strong><br>বিজ্ঞাপনে <strong>" + remainingNeeded + " সেকেন্ড</strong> থাকুন। সময় শেষ হওয়ামাত্র আপনার ফোনে <strong>'ডিঙ-ডং 🔔'</strong> সাউন্ড বাজবে ও ফোন কাঁপবে!";
+
+        if (backgroundTimer) clearTimeout(backgroundTimer);
+        backgroundTimer = setTimeout(() => {
+            triggerAlert();
+        }, remainingNeeded * 1000);
 
         try {
-            tg.openLink(AD_DIRECT_LINK, { try_instant_view: false });
+            tg.openLink(targetAdLink, { try_instant_view: false });
         } catch(e) {
-            window.open(AD_DIRECT_LINK, '_blank');
+            window.open(targetAdLink, '_blank');
         }
     }
 
-    // ২. Anti-Cheat ইঞ্জিন: ইউজার ফিরে আসলে রিয়েল সেকেন্ড যাচাই
     document.addEventListener("visibilitychange", handleUserReturn);
     window.addEventListener("focus", handleUserReturn);
 
     function handleUserReturn() {
         if (!isAdClicked || isAllDone || !timeWhenLeft) return;
 
-        // ইউজার যখন মিনি অ্যাপে ফিরে এলো:
         if (document.visibilityState === "visible") {
             const returnTime = Date.now();
-            const secondsOutside = Math.floor((returnTime - timeWhenLeft) / 1000);
+            const sessionSeconds = Math.floor((returnTime - timeWhenLeft) / 1000);
             timeWhenLeft = null;
 
-            // ১২ সেকেন্ড অতিক্রান্ত হয়েছে কি না:
-            if (secondsOutside >= REQUIRED_SECONDS) {
+            accumulatedSeconds += sessionSeconds;
+
+            if (accumulatedSeconds >= REQUIRED_SECONDS) {
+                if (backgroundTimer) clearTimeout(backgroundTimer);
+                accumulatedSeconds = 0;
+
+                adRotationCounter = (adRotationCounter + 1) % 1000;
+                localStorage.setItem('ad_rot_counter', adRotationCounter.toString());
+
                 if (currentStep < TOTAL_STEPS) {
                     currentStep++;
                     updatePills();
                     statusBox.className = "alert-box success";
                     statusBox.innerHTML = "✅ <strong>ধাপ ১ সফল হয়েছে!</strong><br>আর মাত্র ১টি ধাপ বাকি! নিচের বাটনে ক্লিক করে শেষ বিজ্ঞাপনটি দেখুন।";
                     adBtn.innerText = "📢 ধাপ ২: শেষ বিজ্ঞাপন দেখুন (" + REQUIRED_SECONDS + " সেকেন্ড)";
+                    document.title = "Secure Fast Unlocker";
                 } else {
-                    // 🎉 ২টি ধাপই সফলভাবে সম্পন্ন!
                     isAllDone = true;
                     currentStep = 3;
                     updatePills();
@@ -158,12 +257,12 @@
                     getLinkBtn.disabled = false;
                     getLinkBtn.className = "btn get-btn";
                     instruction.innerText = "সবগুলো বিজ্ঞাপন সফলভাবে যাচাই করা হয়েছে!";
+                    document.title = "✅ আনলক সম্পন্ন!";
                 }
             } else {
-                // ❌ চিটিং ধরা পড়ল (১২ সেকেন্ডের আগেই ফিরে এসেছে)
-                const needed = REQUIRED_SECONDS - secondsOutside;
+                const needed = REQUIRED_SECONDS - accumulatedSeconds;
                 statusBox.className = "alert-box error";
-                statusBox.innerHTML = "⚠️ <strong>আপনি খুব দ্রুত চলে এসেছেন!</strong><br>বিজ্ঞাপন লোড ও দেখার জন্য আরও <strong>" + needed + " সেকেন্ড</strong> বিজ্ঞাপনে থাকতে হবে।";
+                statusBox.innerHTML = "⚠️ <strong>আপনি একটু দ্রুত চলে এসেছেন!</strong><br>আপনি মোট <strong>" + accumulatedSeconds + " সেকেন্ড</strong> ছিলেন। আর মাত্র <strong>" + needed + " সেকেন্ড</strong> বাকি। নিচের বাটনে চাপ দিয়ে বাকি সময়টুকু পূর্ণ করুন।";
                 adBtn.innerText = "🔄 বিজ্ঞাপনে বাকি " + needed + " সেকেন্ড থাকুন";
             }
         } else if (document.visibilityState === "hidden") {
@@ -171,7 +270,6 @@
         }
     }
 
-    // ৩. আনলক হয়ে গেলে টেলিগ্রাম বটে রিডাইরেক্ট
     function redirectToBot() {
         if (!isAllDone) {
             alert("⚠️ আগে ২টি বিজ্ঞাপন দেখার ধাপ সম্পন্ন করুন!");
