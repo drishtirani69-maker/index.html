@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Secure Fast Unlocker</title>
+    <!-- Telegram WebApp SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Adsgram Official Telegram In-App Ad SDK -->
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background: #0b1120; color: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px; }
-        .box { background: #1e293b; padding: 24px; border-radius: 18px; text-align: center; width: 100%; max-width: 380px; box-shadow: 0 15px 30px rgba(0,0,0,0.6); border: 1px solid #334155; }
+        .box { background: #1e293b; padding: 24px; border-radius: 18px; text-align: center; width: 100%; max-width: 390px; box-shadow: 0 15px 30px rgba(0,0,0,0.6); border: 1px solid #334155; }
         h3 { color: #38bdf8; margin-bottom: 6px; font-size: 18px; font-weight: 700; }
         p.subtitle { font-size: 12.5px; color: #94a3b8; margin-bottom: 14px; line-height: 1.5; }
         
@@ -28,12 +31,16 @@
         .alert-box.success { border-color: #10b981; color: #6ee7b7; background: #064e3b; }
         .alert-box.idle { border-color: #f59e0b; color: #fcd34d; background: #451a03; }
 
-        .btn { background: #0284c7; color: #fff; border: none; padding: 14px; font-size: 15px; border-radius: 10px; cursor: pointer; width: 100%; font-weight: 700; transition: all 0.2s; margin-top: 8px; }
+        .btn { background: #0284c7; color: #fff; border: none; padding: 14px; font-size: 15px; border-radius: 10px; cursor: pointer; width: 100%; font-weight: 700; transition: all 0.2s; margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn:active { transform: scale(0.98); }
         .btn:disabled { background: #334155; color: #64748b; cursor: not-allowed; transform: none; box-shadow: none; }
         
+        .video-btn { background: linear-gradient(135deg, #7c3aed, #4f46e5); box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4); }
+        .video-btn:hover { background: linear-gradient(135deg, #6d28d9, #4338ca); }
         .ad-btn { background: #e11d48; }
         .ad-btn:hover { background: #be123c; }
+        .fallback-btn { background: #475569; border: 1px solid #64748b; font-size: 13px; padding: 11px; margin-top: 6px; }
+        .fallback-btn:hover { background: #334155; }
         .get-btn { background: #10b981; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); }
         .get-btn:hover { background: #059669; }
 
@@ -48,30 +55,33 @@
 <body>
 
 <div class="box">
-    <span class="badge">🛡️ মাল্টি-অ্যাড রোটেটর ও অডিও এলার্ট</span>
+    <span class="badge">🛡️ দ্বিমুখী অটো-ফলব্যাক (Adsgram ⇋ Adsterra)</span>
     <h3>ফাইলটি আনলক করুন</h3>
-    <p class="subtitle" id="instruction">মোট <strong>২টি বিজ্ঞাপন</strong> ভিজিট করুন। বিজ্ঞাপন লোড ও নিশ্চিত করার জন্য প্রতি ধাপে <strong>১২ সেকেন্ড</strong> ব্রাউজারে থাকুন।</p>
+    <p class="subtitle" id="instruction">মোট <strong>২টি বিজ্ঞাপন</strong> সম্পন্ন করুন। কোনো একটি বিজ্ঞাপন লোড না হলে সিস্টেম নিজে থেকেই বিকল্প বিজ্ঞাপন চালু করবে।</p>
 
     <!-- ⚠️ ১৮+ কনটেন্ট সতর্কতা ও ডিসক্লেইমার -->
     <div class="warning-banner">
-        <div class="warning-title">⚠️ ১৮+ সতর্কতা ও ইউজার গাইডলাইন</div>
-        <div class="warning-text">স্পনসর বিজ্ঞাপনে প্রাপ্তবয়স্কদের (১৮+) কন্টেন্ট থাকতে পারে। বিজ্ঞাপনে ১২ সেকেন্ড পূরণ হওয়ামাত্র ফোনে <strong>'ডিঙ-ডং' বেল</strong> বাজবে। নিজ দায়িত্বে ব্রাউজ করুন।</div>
+        <div class="warning-title">⚠️ ১৮+ সতর্কতা ও অটো-ফলব্যাক সুবিধা</div>
+        <div class="warning-text">যদি ব্রাউজারে Adsterra বিজ্ঞাপন লোড হতে সমস্যা করে, তবে স্বয়ংক্রিয়ভাবে Adsgram ভিডিও চালু হয়ে ফাইল আনলক করবে।</div>
     </div>
 
     <!-- ২-ধাপ প্রোগ্রেস পিল -->
     <div class="steps-container">
-        <div id="stepPill1" class="step-pill active">ধাপ ১/২ (১২ সে.)</div>
-        <div id="stepPill2" class="step-pill">ধাপ ২/২ (১২ সে.)</div>
+        <div id="stepPill1" class="step-pill active">ধাপ ১/২ (ভিডিও বিজ্ঞাপন)</div>
+        <div id="stepPill2" class="step-pill">ধাপ ২/২ (অটো-স্মার্ট অ্যাড)</div>
     </div>
 
     <!-- অডিও এলার্ট নোটিশ -->
     <div class="sound-hint">
         <span class="icon">🔔</span>
-        <div><strong>কীভাবে বুঝবেন ১২ সেকেন্ড শেষ?</strong><br>বিজ্ঞাপনে যাওয়ার ঠিক ১২ সেকেন্ড পূর্ণ হলে আপনার ফোন <strong>কেঁপে উঠবে (Vibrate)</strong> এবং <strong>'ডিঙ-ডং 🔔' শব্দ</strong> করবে! শব্দ শোনামাত্রই মোবাইলের ব্যাক বাটন চাপবেন।</div>
+        <div><strong>অটো-সিস্টেম নোটিশ:</strong><br>Adsgram শেষ হলে সাথে সাথে ধাপ পাস হবে। Adsterra-তে গেলে ১২ সেকেন্ড পর ফোন <strong>কেঁপে উঠবে ও 'ডিঙ-ডং' বেল</strong> বাজবে।</div>
     </div>
 
-    <!-- বিজ্ঞাপনে যাওয়ার বাটন -->
-    <button id="adBtn" class="btn ad-btn" onclick="goToAd()">📢 ধাপ ১: বিজ্ঞাপন দেখুন (১২ সেকেন্ড)</button>
+    <!-- প্রধান অ্যাকশন বাটন -->
+    <button id="mainActionBtn" class="btn video-btn" onclick="handleStepAction()">🎬 ধাপ ১: ভিডিও বিজ্ঞাপন দেখুন (ইন-অ্যাপ)</button>
+
+    <!-- অটো-ফলব্যাক সুইচ বাটন (Adsterra সমস্যা করলে বা লোড না হলে) -->
+    <button id="fallbackBtn" class="btn fallback-btn" style="display:none;" onclick="forceAdsgramFallback()">🎬 Adsterra লোড না হলে Adsgram ভিডিও চালান</button>
 
     <!-- ভেরিফিকেশন স্ট্যাটাস বক্স -->
     <div id="statusBox" class="alert-box idle" style="display:none;"></div>
@@ -90,17 +100,12 @@
     const urlParams = new URLSearchParams(window.location.search);
     const fileId = urlParams.get('file_id');
     const botUsername = urlParams.get('bot');
-    const dynamicAdUrl = urlParams.get('ad_url');
+    
+    // ⚙️ Adsgram Block ID এবং Adsterra লিঙ্ক
+    const ADSGRAM_BLOCK_ID = urlParams.get('block_id') || "int-46653";
+    const ADSTERRA_URL = urlParams.get('ad_url') || "https://www.profitableratecpmnetwork.com/v2symi5iu9?key=40baf5c9ac715bb6da16c2f6c7323524";
 
-// 🔗 🔄 মাল্টি-অ্যাড লিঙ্ক রোটেটর পুল (এখানে আপনার ৩টি লিঙ্ক বসানো হয়েছে)
-    const RAW_AD_LINKS = (dynamicAdUrl || "").split(',').map(s => s.trim()).filter(Boolean);
-    const AD_LINKS_POOL = RAW_AD_LINKS.length > 0 ? RAW_AD_LINKS : [
-        "https://www.profitableratecpmnetwork.com/v2symi5iu9?key=40baf5c9ac715bb6da16c2f6c7323524",
-        "https://omg10.com/4/11717817",
-        "https://boring-active.com/zaWH9A"
-    ];
-
-    const REQUIRED_SECONDS = 12; // ১২ সেকেন্ড
+    const REQUIRED_SECONDS = 12; // Adsterra-তে ১২ সেকেন্ড
     const TOTAL_STEPS = 2;       // মোট ২টি ধাপ
     
     let currentStep = 1;
@@ -111,20 +116,13 @@
     let audioCtx = null;
     let backgroundTimer = null;
 
-    let adRotationCounter = parseInt(localStorage.getItem('ad_rot_counter') || '0', 10);
-
-    function getNextAdLink(step) {
-        if (AD_LINKS_POOL.length === 1) return AD_LINKS_POOL[0];
-        const selectedIndex = (adRotationCounter + (step - 1)) % AD_LINKS_POOL.length;
-        return AD_LINKS_POOL[selectedIndex];
-    }
-
-    const adBtn = document.getElementById('adBtn');
+    const mainActionBtn = document.getElementById('mainActionBtn');
+    const fallbackBtn = document.getElementById('fallbackBtn');
     const getLinkBtn = document.getElementById('getLinkBtn');
     const statusBox = document.getElementById('statusBox');
     const instruction = document.getElementById('instruction');
-    
-    // 🔊 মিষ্টি অডিও বেল সিন্থেসাইজার
+
+    // 🔊 মিষ্টি অডিও সিন্থেসাইজার (ডিঙ-ডং বেল)
     function playChime() {
         try {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -158,6 +156,7 @@
         } catch(e) {}
     }
 
+    // 📳 ভাইব্রেশন ও এলার্ট
     function triggerAlert() {
         playChime();
         try {
@@ -174,55 +173,156 @@
     }
 
     function updatePills() {
-        for (let i = 1; i <= TOTAL_STEPS; i++) {
-            const pill = document.getElementById('stepPill' + i);
-            if (i < currentStep) {
-                pill.className = "step-pill done";
-                pill.innerText = "ধাপ " + i + ": সম্পন্ন ✅";
-            } else if (i === currentStep) {
-                pill.className = "step-pill active";
-                pill.innerText = "ধাপ " + i + "/২ (১২ সে.)";
-            } else {
-                pill.className = "step-pill";
-                pill.innerText = "ধাপ " + i + "/২ (১২ সে.)";
-            }
+        const pill1 = document.getElementById('stepPill1');
+        const pill2 = document.getElementById('stepPill2');
+
+        if (currentStep === 1) {
+            pill1.className = "step-pill active";
+            pill1.innerText = "ধাপ ১/২ (ভিডিও বিজ্ঞাপন)";
+            pill2.className = "step-pill";
+            pill2.innerText = "ধাপ ২/২ (অটো-স্মার্ট অ্যাড)";
+        } else if (currentStep === 2) {
+            pill1.className = "step-pill done";
+            pill1.innerText = "ধাপ ১: সম্পন্ন ✅";
+            pill2.className = "step-pill active";
+            pill2.innerText = "ধাপ ২/২ (Adsterra বা Adsgram)";
+        } else {
+            pill1.className = "step-pill done";
+            pill1.innerText = "ধাপ ১: সম্পন্ন ✅";
+            pill2.className = "step-pill done";
+            pill2.innerText = "ধাপ ২: সম্পন্ন ✅";
         }
     }
 
-    function goToAd() {
-        const targetAdLink = getNextAdLink(currentStep);
-        if (!targetAdLink || targetAdLink.includes("your-smart-link-here")) {
-            alert("⚠️ স্মার্ট লিঙ্ক সেটআপ করা হয়নি!");
-            return;
-        }
-
+    // বাটন ক্লিক হ্যান্ডলার
+    function handleStepAction() {
         try {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             if (AudioContext && !audioCtx) audioCtx = new AudioContext();
             if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
         } catch(e) {}
 
-        const remainingNeeded = REQUIRED_SECONDS - accumulatedSeconds;
+        if (currentStep === 1) {
+            showAdsgramVideo();
+        } else if (currentStep === 2) {
+            goToAdsterra();
+        }
+    }
 
+    // 🎬 Adsgram ইন-অ্যাপ ভিডিও বিজ্ঞাপন
+    function showAdsgramVideo() {
+        statusBox.style.display = "block";
+        statusBox.className = "alert-box idle";
+        statusBox.innerHTML = "⏳ <strong>Adsgram ভিডিও বিজ্ঞাপন লোড হচ্ছে...</strong><br>মিনি অ্যাপের ভেতরেই ভিডিওটি চলবে, কোথাও রিডাইরেক্ট হতে হবে না।";
+
+        const validBlockId = ADSGRAM_BLOCK_ID && !ADSGRAM_BLOCK_ID.includes("বসাবেন") && ADSGRAM_BLOCK_ID !== "YOUR_ADSGRAM_BLOCK_ID";
+
+        if (window.Adsgram && validBlockId) {
+            try {
+                const AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
+                AdController.show().then((result) => {
+                    // ভিডিও দেখা সফল হয়েছে
+                    triggerAlert();
+                    if (currentStep === 1) {
+                        completeStep1();
+                    } else {
+                        completeStep2();
+                    }
+                }).catch((err) => {
+                    console.log("Adsgram fallback to Adsterra:", err);
+                    statusBox.className = "alert-box idle";
+                    statusBox.innerHTML = "ℹ️ <strong>Adsgram ভিডিও এই মুহূর্তে ফাঁকা</strong>, স্বয়ংক্রিয়ভাবে Adsterra চালু হচ্ছে...";
+                    setTimeout(goToAdsterra, 700);
+                });
+            } catch(e) {
+                console.log("Adsgram init error:", e);
+                goToAdsterra();
+            }
+        } else {
+            // Adsgram ব্লক আইডি না থাকলে সরাসরি Adsterra লোড হবে
+            goToAdsterra();
+        }
+    }
+
+    function completeStep1() {
+        currentStep = 2;
+        updatePills();
+        statusBox.className = "alert-box success";
+        statusBox.innerHTML = "✅ <strong>ধাপ ১ সফল হয়েছে!</strong><br>নিচের বাটনে ক্লিক করে শেষ ধাপ সম্পন্ন করুন (Adsterra বা Adsgram)।";
+        
+        mainActionBtn.className = "btn ad-btn";
+        mainActionBtn.innerText = "📢 ধাপ ২: Adsterra বিজ্ঞাপন দেখুন (১২ সেকেন্ড)";
+        fallbackBtn.style.display = "flex";
+        fallbackBtn.innerText = "🎬 অথবা Adsgram ভিডিও দিয়ে ধাপ ২ শেষ করুন";
+    }
+
+    function completeStep2() {
+        isAllDone = true;
+        currentStep = 3;
+        updatePills();
+        statusBox.className = "alert-box success";
+        statusBox.innerHTML = "🎉 <strong>অভিনন্দন! ভেরিফিকেশন সম্পন্ন হয়েছে!</strong><br>নিচের <strong>Get Link</strong> বাটনে চাপ দিয়ে ফাইলগুলো সংগ্রহ করুন।";
+        
+        mainActionBtn.style.display = "none";
+        fallbackBtn.style.display = "none";
+        getLinkBtn.disabled = false;
+        getLinkBtn.className = "btn get-btn";
+        instruction.innerText = "সবগুলো বিজ্ঞাপন সফলভাবে যাচাই করা হয়েছে!";
+        document.title = "✅ আনলক সম্পন্ন!";
+    }
+
+    // 📢 Adsterra ডিরেক্ট লিংক (অটো-ফলব্যাক সহ)
+    function goToAdsterra() {
+        const isInvalidAdsterra = !ADSTERRA_URL || ADSTERRA_URL.includes("বসাবেন") || ADSTERRA_URL.includes("your-adsterra-smart-link");
+
+        // 🚨 ১. যদি Adsterra লিঙ্ক না থাকে বা কাজ না করে ➡️ সাথে সাথে ওটোমেটিক Adsgram রান হবে!
+        if (isInvalidAdsterra) {
+            statusBox.style.display = "block";
+            statusBox.className = "alert-box idle";
+            statusBox.innerHTML = "🔄 <strong>Adsterra লিংক পাওয়া যায়নি</strong>, ওটোমেটিক Adsgram ভিডিও চালু করা হচ্ছে...";
+            setTimeout(() => {
+                showAdsgramVideo();
+            }, 600);
+            return;
+        }
+
+        const remainingNeeded = REQUIRED_SECONDS - accumulatedSeconds;
         isAdClicked = true;
         timeWhenLeft = Date.now();
 
         statusBox.style.display = "block";
         statusBox.className = "alert-box idle";
-        statusBox.innerHTML = "⏳ <strong>বিজ্ঞাপন ব্রাউজারে লোড হচ্ছে...</strong><br>বিজ্ঞাপনে <strong>" + remainingNeeded + " সেকেন্ড</strong> থাকুন। সময় শেষ হওয়ামাত্র আপনার ফোনে <strong>'ডিঙ-ডং 🔔'</strong> সাউন্ড বাজবে ও ফোন কাঁপবে!";
+        statusBox.innerHTML = "⏳ <strong>বিজ্ঞাপন ব্রাউজারে ওপেন হচ্ছে...</strong><br>বিজ্ঞাপনে <strong>" + remainingNeeded + " সেকেন্ড</strong> থাকুন। সময় শেষ হলে ফোনে বেল বাজবে!<br><small style='color:#94a3b8;'>যদি Adsterra সাদা হয়ে থাকে বা না আসে, তবে নিচের বাটনে চাপ দিন (অটো Adsgram ভিডিও চলবে)।</small>";
+
+        fallbackBtn.style.display = "flex";
 
         if (backgroundTimer) clearTimeout(backgroundTimer);
         backgroundTimer = setTimeout(() => {
             triggerAlert();
         }, remainingNeeded * 1000);
 
+        // 🛡️ টেলিগ্রাম ব্রাউজার সেফ ওপেনিং
         try {
-            tg.openLink(targetAdLink, { try_instant_view: false });
+            tg.openLink(ADSTERRA_URL, { try_instant_view: false });
         } catch(e) {
-            window.open(targetAdLink, '_blank');
+            // যদি টেলিগ্রাম ব্রাউজার Adsterra ওপেন করতে ফেইল করে ➡️ ওটোমেটিক Adsgram ভিডিও চলবে
+            statusBox.className = "alert-box idle";
+            statusBox.innerHTML = "🔄 <strong>ব্রাউজারে লিঙ্ক ওপেন হতে সমস্যা হয়েছে</strong>, ওটোমেটিক Adsgram ভিডিও রান হচ্ছে...";
+            setTimeout(() => {
+                showAdsgramVideo();
+            }, 500);
         }
     }
 
+    // ব্যবহারকারী ম্যানুয়ালি বা অটো Adsgram ফলব্যাক চালাতে চাইলে
+    function forceAdsgramFallback() {
+        statusBox.style.display = "block";
+        statusBox.className = "alert-box idle";
+        statusBox.innerHTML = "🎬 <strong>Adsterra-র বদলে ওটোমেটিক Adsgram ভিডিও চালু করা হচ্ছে...</strong>";
+        showAdsgramVideo();
+    }
+
+    // ইউজার ব্রাউজার থেকে ফিরে আসলে সময় যাচাই
     document.addEventListener("visibilitychange", handleUserReturn);
     window.addEventListener("focus", handleUserReturn);
 
@@ -240,34 +340,25 @@
                 if (backgroundTimer) clearTimeout(backgroundTimer);
                 accumulatedSeconds = 0;
 
-                adRotationCounter = (adRotationCounter + 1) % 1000;
-                localStorage.setItem('ad_rot_counter', adRotationCounter.toString());
-
-                if (currentStep < TOTAL_STEPS) {
-                    currentStep++;
-                    updatePills();
-                    statusBox.className = "alert-box success";
-                    statusBox.innerHTML = "✅ <strong>ধাপ ১ সফল হয়েছে!</strong><br>আর মাত্র ১টি ধাপ বাকি! নিচের বাটনে ক্লিক করে শেষ বিজ্ঞাপনটি দেখুন।";
-                    adBtn.innerText = "📢 ধাপ ২: শেষ বিজ্ঞাপন দেখুন (" + REQUIRED_SECONDS + " সেকেন্ড)";
-                    document.title = "Secure Fast Unlocker";
+                if (currentStep === 1) {
+                    completeStep1();
                 } else {
-                    isAllDone = true;
-                    currentStep = 3;
-                    updatePills();
-                    statusBox.className = "alert-box success";
-                    statusBox.innerHTML = "🎉 <strong>অভিনন্দন! ভেরিফিকেশন সম্পন্ন হয়েছে!</strong><br>নিচের <strong>Get Link</strong> বাটনে চাপ দিয়ে ফাইলগুলো সংগ্রহ করুন।";
-                    
-                    adBtn.style.display = "none";
-                    getLinkBtn.disabled = false;
-                    getLinkBtn.className = "btn get-btn";
-                    instruction.innerText = "সবগুলো বিজ্ঞাপন সফলভাবে যাচাই করা হয়েছে!";
-                    document.title = "✅ আনলক সম্পন্ন!";
+                    completeStep2();
                 }
             } else {
                 const needed = REQUIRED_SECONDS - accumulatedSeconds;
                 statusBox.className = "alert-box error";
-                statusBox.innerHTML = "⚠️ <strong>আপনি একটু দ্রুত চলে এসেছেন!</strong><br>আপনি মোট <strong>" + accumulatedSeconds + " সেকেন্ড</strong> ছিলেন। আর মাত্র <strong>" + needed + " সেকেন্ড</strong> বাকি। নিচের বাটনে চাপ দিয়ে বাকি সময়টুকু পূর্ণ করুন।";
-                adBtn.innerText = "🔄 বিজ্ঞাপনে বাকি " + needed + " সেকেন্ড থাকুন";
+                
+                // 💡 যদি ইউজার ৩ সেকেন্ডের মধ্যে ফিরে আসে (অর্থাৎ Adsterra অ্যাড লোড হয়নি বা আটকে গেছে)
+                if (accumulatedSeconds <= 3) {
+                    statusBox.innerHTML = "⚠️ <strong>বিজ্ঞাপন কি লোড হয়নি?</strong><br>কোনো সমস্যা নেই! নিচের বাটনে চাপ দিয়ে <strong>Adsgram ভিডিও</strong> দেখে সহজেই আনলক করে নিন।";
+                    fallbackBtn.style.display = "flex";
+                    fallbackBtn.className = "btn video-btn";
+                    fallbackBtn.innerText = "🎬 Adsgram ভিডিও দিয়ে আনলক করুন (অটো-ফলব্যাক)";
+                } else {
+                    statusBox.innerHTML = "⚠️ <strong>আপনি একটু দ্রুত চলে এসেছেন!</strong><br>আপনি <strong>" + accumulatedSeconds + " সেকেন্ড</strong> ছিলেন। আর <strong>" + needed + " সেকেন্ড</strong> বাকি।";
+                }
+                mainActionBtn.innerText = "🔄 বিজ্ঞাপনে বাকি " + needed + " সেকেন্ড থাকুন";
             }
         } else if (document.visibilityState === "hidden") {
             timeWhenLeft = Date.now();
@@ -276,7 +367,7 @@
 
     function redirectToBot() {
         if (!isAllDone) {
-            alert("⚠️ আগে ২টি বিজ্ঞাপন দেখার ধাপ সম্পন্ন করুন!");
+            alert("⚠️ আগে ২টি ধাপ সম্পন্ন করুন!");
             return;
         }
 
